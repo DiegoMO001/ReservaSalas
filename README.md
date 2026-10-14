@@ -83,9 +83,8 @@ Em outro terminal:
 ```bat
 ant run-client
 ```
-```bat
+
 Ou, se preferir, execute diretamente as classes ServidorMain.java e ClienteMain.java. Inicie primeiro o ServidorMain e, em seguida, execute o ClienteMain em outra execução do projeto.
-```
 
 Os testes criam bancos temporários em `build/test-data` e não usam o banco operacional.
 

@@ -1,0 +1,9 @@
+build/
+dist/
+sistema.db
+sistema.db-shm
+sistema.db-wal
+sistema.db.lock
+nbproject/private/
+cliente-log.txt
+servidor-log.txt

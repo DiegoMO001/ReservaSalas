@@ -1,0 +1,122 @@
+Testando 127.0.0.1:56215 contra o contrato v2.4.0 (asyncapi.yaml)
+
+Formato e erros de protocolo (regras 1.x e 4.x)
+  ✓ JSON inválido → error 400 "Requisicao invalida"
+  ✓ op desconhecida → error 400 "Operacao desconhecida"
+  ✓ mensagem acima de 8192 bytes → error 400
+  ✓ a conexão continua de pé depois de um erro (regra 4.5)
+  ✓ número no lugar de string → 400 (regra 2.3)
+
+Cadastro e login
+  ✓ register → 201
+  ✓ register repetido → 409
+  ✓ register com user fora do formato (com número) → 400
+  ✓ register com e-mail de vários níveis (alunos.utfpr.edu.br) → 201 (v2.1)
+  ✓ login com senha errada → 401
+  ✓ login com e-mail inexistente → o mesmo 401
+  ✓ login → 200 com token e role "user"
+  ✓ login com sessão ativa → 409
+  ✓ login com sessão ativa e senha errada → 401, não 409 (v2.2, regra 3.12)
+  ✓ login do segundo usuário → 200
+
+Token
+  ✓ token fora do formato → 400
+  ✓ token que não existe → 401
+  ✓ requisição sem token → 400 ou 401 (pendência 1)
+
+Próprio cadastro
+  ✓ read_user → 200 com os próprios dados e sem senha
+  ✓ update_user com a chave email → 400 (RNF 5.c)
+  ✓ update_user com user e password vazios → 400 "Nenhum dado para atualizar" (v2.4)
+  ✓ update_user para um user que já existe → 409
+  ✓ update_user trocando só a senha → 200
+  ✓ delete_user com senha errada → 403 "Senha incorreta" (v2.1)
+  ✓ a sessão continua depois da senha errada (v2.1, regra 3.9)
+
+Administrador
+  ✓ login do admin → 200 com role "admin"
+  ✓ usuário comum em admin_list_users → 403
+  ✓ admin_list_users → 200 com o usuário de teste
+  ✓ admin_read_user → 200
+  ✓ admin_read_user de usuário inexistente → 404
+  ✓ admin_update_user com user, password e role vazios → 400 "Nenhum dado para atualizar" (v2.4)
+  ✓ admin_update_user trocando só a senha → 200
+
+Salas
+  – create_room → 201 com room_id
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – create_room com nome repetido → 409
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – usuário comum em create_room → 403
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – read_room → 200
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – read_room de sala inexistente → 404
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – list_rooms sem filtros → 200, sem o campo available
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – list_rooms só com date → 400
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – list_rooms com date, start_time e end_time → 200 com available
+      pulado: Fora do escopo da ReservaSalasSimplificada
+
+Reservas
+  – check_availability num horário livre → available "true"
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – create_reservation → 201 com reservation_id
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – check_availability no horário reservado → available "false"
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – outra reserva no mesmo horário → 409
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – reserva que começa no fim da outra → 201 (regra 5.4)
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – end_time antes do start_time → 400
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – data passada → 400
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – participants acima da capacity → 400
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – list_reservations (minhas) → 200 com a reserva
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – usuário comum com scope "all" → 403
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – admin com scope "all" → 200
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – read_reservation do dono → 200
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – read_reservation de outro usuário → 403
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – read_reservation inexistente → 404
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – update_reservation estendendo por cima de outra reserva → 409
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – update_reservation encurtando ("" no resto) → 200
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – duas reservas simultâneas no mesmo horário → uma 201 e uma 409 (regra 5.1, 5 rodadas)
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – delete_reservation do dono → 200
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  – delete_reservation de novo → 404
+      pulado: Fora do escopo da ReservaSalasSimplificada
+
+Sessão e logout (v2.2)
+  ✓ o token continua valendo numa conexão nova (regra 1.11)
+  ✓ logout → 200
+  ✓ token depois do logout → 401
+  ✓ logout repetido → 401
+  ✓ dois logins simultâneos na mesma conta → um 200 e um 409 (regra 3.11)
+
+Remoção de conta e limpeza (v2.3)
+  – apagar as reservas que sobraram
+      pulado: Fora do escopo da ReservaSalasSimplificada
+  ✓ delete_user com a senha certa → 200
+  ✓ token de usuário removido → 401
+  ✓ user e email ficam livres: register com os mesmos dados → 201 (v2.3, regra 3.13)
+  ✓ admin_delete_user do segundo usuário → 200
+  ✓ sessão de quem foi removido pelo admin → 401
+  ✓ o e-mail do segundo usuário também fica livre → 201
+  ✓ remover os cadastros refeitos
+  ✓ logout do admin → 200
+
+Resultado: 45 passaram, 0 falharam, 28 pulados (de 73 testes)

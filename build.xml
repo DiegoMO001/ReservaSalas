@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ReservaSalasSimplificada" default="jar" basedir=".">
+    <property file="nbproject/private/config.properties"/>
+    <property file="nbproject/configs/${config}.properties"/>
+    <property file="nbproject/project.properties"/>
+    <property name="test.dir" location="test"/>
+    <property name="classes.dir" location="${build.classes.dir}"/>
+    <property name="test.classes.dir" location="${build.test.classes.dir}"/>
+    <property name="test.data.dir" location="${build.dir}/test-data"/>
+    <path id="dependencias">
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    <import file="nbproject/build-impl.xml"/>
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" encoding="UTF-8"
+               release="18" includeantruntime="false">
+            <classpath refid="dependencias"/>
+        </javac>
+    </target>
+    <target name="test" depends="jar">
+        <mkdir dir="${test.classes.dir}"/>
+        <javac srcdir="${test.dir}" destdir="${test.classes.dir}" encoding="UTF-8"
+               release="18" includeantruntime="false">
+            <classpath>
+                <path refid="dependencias"/>
+                <pathelement location="${dist.jar}"/>
+            </classpath>
+        </javac>
+        <jar destfile="${build.dir}/testes.jar" basedir="${test.classes.dir}"/>
+        <java classname="servidor.dao.TestesUsuarios" fork="true" failonerror="true">
+            <arg value="${test.data.dir}"/>
+            <classpath>
+                <path refid="dependencias"/>
+                <pathelement location="${dist.jar}"/>
+                <pathelement location="${build.dir}/testes.jar"/>
+            </classpath>
+        </java>
+        <java classname="servidor.TestesIntegracao" fork="true" failonerror="true">
+            <arg value="${test.data.dir}"/>
+            <classpath>
+                <path refid="dependencias"/>
+                <pathelement location="${dist.jar}"/>
+                <pathelement location="${build.dir}/testes.jar"/>
+            </classpath>
+        </java>
+        <java classname="servidor.TestesProtocolo24" fork="true" failonerror="true">
+            <arg value="${test.data.dir}"/>
+            <classpath>
+                <path refid="dependencias"/>
+                <pathelement location="${dist.jar}"/>
+                <pathelement location="${build.dir}/testes.jar"/>
+            </classpath>
+        </java>
+    </target>
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist.dir}/lib"/>
+        <jar destfile="${dist.jar}" basedir="${classes.dir}" manifest="manifest.mf">
+            <manifest><attribute name="Main-Class" value="servidor.ServidorMain"/></manifest>
+        </jar>
+        <copy todir="${dist.dir}/lib">
+            <fileset dir="lib" includes="*.jar"/>
+        </copy>
+    </target>
+    <target name="run" depends="jar">
+        <java classname="${main.class}" fork="true" failonerror="true">
+            <classpath><pathelement location="${dist.jar}"/><path refid="dependencias"/></classpath>
+        </java>
+    </target>
+    <target name="run-single" depends="jar">
+        <fail unless="run.class" message="Selecione uma classe com main"/>
+        <java classname="${run.class}" fork="true" failonerror="true">
+            <classpath><pathelement location="${dist.jar}"/><path refid="dependencias"/></classpath>
+        </java>
+    </target>
+    <target name="run-server" depends="jar">
+        <java classname="servidor.ServidorMain" fork="true" failonerror="true">
+            <classpath><pathelement location="${dist.jar}"/><path refid="dependencias"/></classpath>
+        </java>
+    </target>
+    <target name="run-client" depends="jar">
+        <java classname="cliente.ClienteMain" fork="true" failonerror="true">
+            <classpath><pathelement location="${dist.jar}"/><path refid="dependencias"/></classpath>
+        </java>
+    </target>
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+    <target name="default" depends="jar"/>
+</project>
